@@ -81,6 +81,8 @@ namespace PocketHammer
 
 					TerrainCombiner terrainCombiner = currentTask.terrainCombiner;
 
+                    Debug.Log("TerrainCombiner starting update tasks");
+
 					// Cache updated instantly so we get data for all parts in one frame
 					UpdateCaches(terrainCombiner);
 
@@ -88,7 +90,7 @@ namespace PocketHammer
 					lock (_queueLock)
 					{
 						// Start combine
-						TaskQueue.Enqueue(delegate() { TCHeightmapHelper.StartCombine(terrainCombiner, terrainCombiner.GroundLevelFraction); });
+						TaskQueue.Enqueue(delegate() { TCHeightmapHelper.StartCombine(terrainCombiner, terrainCombiner.groundLevelFraction); });
 						TaskQueue.Enqueue(delegate() { TCMaterialHelper.StartCombine(terrainCombiner); });
 	
 						// Sample texture

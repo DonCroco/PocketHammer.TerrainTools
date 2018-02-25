@@ -130,6 +130,8 @@ namespace PocketHammer
 
 //					EditorGUI.indentLevel ++;
 
+                    // TODO Auto adjust ceiling/floor
+
 					EditorGUILayout.BeginHorizontal();
 					EditorGUILayout.LabelField("Adjust ceiling", GUILayout.Width(100));
 					GUILayout.FlexibleSpace();
@@ -279,10 +281,45 @@ namespace PocketHammer
 					DrawEditorPrefToggle(new GUIContent("Children follow features","Ensure location of children are updated so they follow terrain features when terrain is modified"),PrefName_UpdateChildPosition);
 				}
 			}
-		}
 
-		[DrawGizmo(GizmoType.InSelectionHierarchy)]
-		static void RenderGizmos(TerrainResizer resizer, GizmoType gizmoType)
+
+            if(GUILayout.Button("X axis"))
+            {
+                var map = terrain.terrainData.GetHeights(0, 0, terrain.terrainData.heightmapWidth, terrain.terrainData.heightmapHeight);
+                for(int i=0;i<50;i++)
+                {
+                    map[i, 0] = 1;
+                }
+                terrain.terrainData.SetHeights(0, 0, map);
+            }
+            if (GUILayout.Button("Y axis"))
+            {
+                var map = terrain.terrainData.GetHeights(0, 0, terrain.terrainData.heightmapWidth, terrain.terrainData.heightmapHeight);
+                for (int i = 0; i < 50; i++)
+                {
+                    map[0, i] = 1;
+                }
+                terrain.terrainData.SetHeights(0, 0, map);
+            }
+        }
+
+
+
+        void OnSceneGUI()
+        {
+            TerrainResizer terrainResizer = (TerrainResizer)target;
+            Terrain terrain = terrainResizer.GetComponent<Terrain>();
+
+            // Draw bounds
+            Handles.color = Color.yellow;
+            Vector3 size = Vector3.Scale(terrain.terrainData.size, terrainResizer.transform.localScale);
+            Handles.DrawWireCube(terrainResizer.transform.position + size*0.5f, size);
+        }
+
+
+
+        [DrawGizmo(GizmoType.InSelectionHierarchy)]
+		static void RenderGizmos(TerrainResizer resizer, GizmoType gizmoType)       // TODO remove this render gizmo stuff
 		{
 			Terrain terrain = resizer.GetComponent<Terrain>();
 			TerrainData terrainData = terrain.terrainData;
@@ -307,10 +344,6 @@ namespace PocketHammer
 			}
 		}
 
-		public void OnSceneGUI()
-		{
-//			TerrainResizer terrainResize = (TerrainResizer)target;
-		}
 
 		private static void DrawBox(Terrain terrain, Vector3 min,Vector3 max, Color color) {
 //			TerrainData terrainData = terrain.terrainData;

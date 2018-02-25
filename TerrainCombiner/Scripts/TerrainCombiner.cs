@@ -53,7 +53,7 @@ namespace PocketHammer
             }
         }
 
-		public float GroundLevelFraction = 0.0f;
+		public float groundLevelFraction = 0.0f;
 
 
 

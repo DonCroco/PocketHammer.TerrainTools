@@ -13,18 +13,13 @@ namespace PocketHammer
 		TerrainCombiner terrainCombiner;
 
 		bool bTriggerUpdate = false;
-//		bool bApply = false;
-		int nApplyFrameCount;
 
-		SerializedProperty groundLevelFraction;
 
 		int selectedInstanceIndex = -1;     // TODO (mogensh) move to TerrainCombiner as non serialized property ? Or serialized`?
 
 		GUISkin GUISkin;
 
 		void OnEnable () {
-
-			groundLevelFraction = serializedObject.FindProperty("GroundLevelFraction");
 
 			terrainCombiner = (TerrainCombiner)target;
 
@@ -96,7 +91,8 @@ namespace PocketHammer
 			serializedObject.Update();
 			EditorGUI.BeginChangeCheck();
 
-			EditorGUILayout.PropertyField(groundLevelFraction);
+            SerializedProperty groundLevelFraction = serializedObject.FindProperty("groundLevelFraction");
+            EditorGUILayout.PropertyField(groundLevelFraction);
 
 			GUILayout.Label("Sources:");
 
@@ -194,9 +190,9 @@ namespace PocketHammer
 //			Terrain terrain = terrainCombiner.GetComponent<Terrain>();
 			// TODO: test for terrain
 
-			float newGroundLevelFraction = EditorGUILayout.FloatField("HeightDataGround",terrainCombiner.GroundLevelFraction);
-			if(newGroundLevelFraction != terrainCombiner.GroundLevelFraction) {
-				terrainCombiner.GroundLevelFraction = Mathf.Clamp(newGroundLevelFraction,0,1);
+			float newGroundLevelFraction = EditorGUILayout.FloatField("HeightDataGround",terrainCombiner.groundLevelFraction);
+			if(newGroundLevelFraction != terrainCombiner.groundLevelFraction) {
+				terrainCombiner.groundLevelFraction = Mathf.Clamp(newGroundLevelFraction,0,1);
 				bTriggerUpdate = true;
 			}
 

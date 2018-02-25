@@ -114,7 +114,7 @@ namespace PocketHammer
 			GL.LoadPixelMatrix(0,1,1,0);
 
 
-			Quaternion rot = Quaternion.Euler(new Vector3(0,0,rotation));
+            Quaternion rot = Quaternion.Euler(new Vector3(0,0,rotation));
 			Matrix4x4 mat = Matrix4x4.identity;
 			mat.SetTRS(position,rot,scale);
 
