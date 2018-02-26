@@ -113,12 +113,20 @@ namespace PocketHammer
 			// Setup scale and material 
 			GL.LoadPixelMatrix(0,1,1,0);
 
+            // Y axis correction
+            position.y = 1 - position.y;
+            rotation = -rotation;
 
             Quaternion rot = Quaternion.Euler(new Vector3(0,0,rotation));
 			Matrix4x4 mat = Matrix4x4.identity;
-			mat.SetTRS(position,rot,scale);
 
-			GL.MultMatrix (mat);
+            mat = mat * Matrix4x4.Translate(position);
+            mat = mat * Matrix4x4.Rotate(rot);
+            mat = mat * Matrix4x4.Scale(scale);
+            mat = mat * Matrix4x4.Translate(new Vector3(-0.5f, -0.5f, 0));
+            //            mat.SetTRS(position,rot,scale);
+
+            GL.MultMatrix (mat);
 
 			// Draw
 			Graphics.DrawTexture(new Rect(0,0,1,1),texture, material);    

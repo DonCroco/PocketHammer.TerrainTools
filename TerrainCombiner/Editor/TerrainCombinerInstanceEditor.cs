@@ -57,7 +57,9 @@ namespace PocketHammer
             // Draw bounds
             Handles.color = Color.yellow;
             Vector3 instanceSize = Vector3.Scale(sourceTerrain.terrainData.size, instance.transform.localScale);
-            Handles.DrawWireCube(instance.transform.position, instanceSize);
+            
+            Handles.matrix = Matrix4x4.TRS(instance.transform.position, instance.transform.rotation, instanceSize);
+            Handles.DrawWireCube(Vector3.zero, Vector3.one);
         }
 
 

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 // PRIORITY A
 // TODO: Trees!
 // TODO: Detail!
+// BUG: instance scall does not work
 
 // PRIORITY B
 // world scale scaling and positioning 
