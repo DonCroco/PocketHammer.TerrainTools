@@ -24,8 +24,12 @@ namespace PocketHammer
 
 				Terrain sourceTerrain = sourceData.source.GetComponent<Terrain>();
 				foreach(SplatPrototype splat in sourceTerrain.terrainData.splatPrototypes) {
-					// If splay use alpha material it should not be added to target
-					if(splat.texture.ToString() == sourceData.source.alphaMaterial.ToString()) {
+
+                    if (splat.texture == null)
+                        continue;
+
+                    // If splay use alpha material it should not be added to target
+					if(sourceData.source.alphaMaterial != null && splat.texture.ToString() == sourceData.source.alphaMaterial.ToString()) {
 						continue;
 					}
 
