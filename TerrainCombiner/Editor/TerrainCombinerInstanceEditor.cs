@@ -11,6 +11,8 @@ namespace PocketHammer
 
         Vector3 lastPosition;
         float lastRotation;
+        Vector3 lastScale;
+
         TerrainCombiner combiner;
         TerrainCombinerInstance instance;
         Terrain combinerTerrain;
@@ -30,6 +32,7 @@ namespace PocketHammer
 
             lastPosition = instance.transform.position;
             lastRotation = instance.transform.rotation.eulerAngles.y;
+            lastScale = instance.transform.localScale;
         }
 
         public override void OnInspectorGUI()
@@ -52,13 +55,14 @@ namespace PocketHammer
             if (sourceTerrain == null)
                 return;
 
+            TerrainCombinerInstance instance = (TerrainCombinerInstance)target;
+
             HandleTransformChange();
 
             // Draw bounds
             Handles.color = Color.yellow;
-            Vector3 instanceSize = Vector3.Scale(sourceTerrain.terrainData.size, instance.transform.localScale);
-            
-            Handles.matrix = Matrix4x4.TRS(instance.transform.position, instance.transform.rotation, instanceSize);
+            Vector3 worldSize = instance.GetWorldSize();
+            Handles.matrix = Matrix4x4.TRS(instance.transform.position, instance.transform.rotation, worldSize);
             Handles.DrawWireCube(Vector3.zero, Vector3.one);
         }
 
@@ -77,35 +81,24 @@ namespace PocketHammer
             instance.transform.localRotation = rot;
 
             bool triggerRebuild = false;
-            if (instance.transform.position != lastPosition)
-            {
-                Vector3 instanceSize = Vector3.Scale(sourceTerrain.terrainData.size, instance.transform.localScale);
-
-                instance.position.x = instance.transform.localPosition.z / combinerTerrain.terrainData.size.z;
-//                instance.position.y = (combinerTerrain.terrainData.size.x - instance.transform.localPosition.x - instanceSize.x) / combinerTerrain.terrainData.size.x;
-                instance.position.y = instance.transform.localPosition.x  / combinerTerrain.terrainData.size.x;
-
-                triggerRebuild = true;
-
-                lastPosition = instance.transform.position;
-            }
-
-            if(instance.transform.rotation.eulerAngles.y != lastRotation)
-            {
-                instance.rotation = instance.transform.rotation.eulerAngles.y;
-                triggerRebuild = true;
-
-                lastRotation = instance.transform.rotation.eulerAngles.y;
-            }
-
-            if(triggerRebuild)
+            triggerRebuild |= instance.transform.position != lastPosition;
+            triggerRebuild |= instance.transform.rotation.eulerAngles.y != lastRotation;
+            triggerRebuild |= instance.transform.localScale != lastScale;
+            if (triggerRebuild)
             {
                 combiner.CacheDirty = true;
                 TCWorker.RequestUpdate(combiner);
             }
+
+            lastPosition = instance.transform.position;
+            lastRotation = instance.transform.rotation.eulerAngles.y;
+            lastScale = instance.transform.localScale;
+
+            instance.position.x = instance.transform.localPosition.z / combinerTerrain.terrainData.size.z;
+            instance.position.y = instance.transform.localPosition.x  / combinerTerrain.terrainData.size.x;
+            instance.rotation = instance.transform.rotation.eulerAngles.y;
+            instance.size.x = instance.transform.localScale.z;
+            instance.size.y = instance.transform.localScale.x;
         }
-
-
-
     }
 }

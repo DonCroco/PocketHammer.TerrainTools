@@ -17,6 +17,8 @@ using System.Collections.Generic;
 // PRIORITY C
 // Rotation around center
 // TODO: child objects
+// BUG: error bleeding from top of terrain to button when combining (very high values .. e.g. debug x/y axis)
+// TODO: default combiner terrain material
 
 // PRIORITY D
 // TODO; reuse/scale textures instead of re-instantiating

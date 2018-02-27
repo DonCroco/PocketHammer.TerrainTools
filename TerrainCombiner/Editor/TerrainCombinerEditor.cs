@@ -80,13 +80,12 @@ namespace PocketHammer
 			EditorApplication.update -= Update;
 		}
 
-
-		public override void OnInspectorGUI()
+    	public override void OnInspectorGUI()
 		{
-			// DOnt bother with skin anyway as we then need to think about light/dark skin
-//			GUI.skin = GUISkin;
+            // DOnt bother with skin anyway as we then need to think about light/dark skin
+            //			GUI.skin = GUISkin;
 
-			GUIContent content;
+            GUIContent content;
 
 			serializedObject.Update();
 			EditorGUI.BeginChangeCheck();
@@ -206,30 +205,28 @@ namespace PocketHammer
 				// TODO show error if gameObject not set OR no terrain on gameobject
 
 				// TODO: only select object with terrain component
-				GameObject currentGameObject = sourceData.source != null ? sourceData.source.gameObject : null;
-				GameObject newGameObject = EditorGUILayout.ObjectField(currentGameObject,typeof(Object),true) as GameObject;
-				TerrainCombinerSource newSource = newGameObject != null ? newGameObject.GetComponent<TerrainCombinerSource>() : null;
-				if(newSource != sourceData.source) {
-					sourceData.source = newSource;
-					terrainCombiner.CacheDirty = true;
-					bTriggerUpdate = true;
-				}
+				//GameObject currentGameObject = sourceData.source != null ? sourceData.source.gameObject : null;
+				//GameObject newGameObject = EditorGUILayout.ObjectField(currentGameObject,typeof(Object),true) as GameObject;
+				//TerrainCombinerSource newSource = newGameObject != null ? newGameObject.GetComponent<TerrainCombinerSource>() : null;
+				//if(newSource != sourceData.source) {
+				//	sourceData.source = newSource;
+				//	terrainCombiner.CacheDirty = true;
+				//	bTriggerUpdate = true;
+				//}
 
+				//Vector2 newPosition = EditorGUILayout.Vector2Field("Position",sourceData.position);
+				//if(newPosition != sourceData.position) {
+				//	sourceData.position = newPosition;
+				//	bTriggerUpdate = true;
+				//}
 
+				//float newRotation = EditorGUILayout.FloatField("Rotation",sourceData.rotation);
+				//if(newRotation != sourceData.rotation) {
+				//	sourceData.rotation = newRotation;
+				//	bTriggerUpdate = true;
+				//}
 
-				Vector2 newPosition = EditorGUILayout.Vector2Field("Position",sourceData.position);
-				if(newPosition != sourceData.position) {
-					sourceData.position = newPosition;
-					bTriggerUpdate = true;
-				}
-
-				float newRotation = EditorGUILayout.FloatField("Rotation",sourceData.rotation);
-				if(newRotation != sourceData.rotation) {
-					sourceData.rotation = newRotation;
-					bTriggerUpdate = true;
-				}
-
-				sourceData.size = EditorGUILayout.Vector2Field("Scale",sourceData.size);
+				//sourceData.size = EditorGUILayout.Vector2Field("Scale",sourceData.size);
 
 				if(GUILayout.Button("World space scale")) {
 					
@@ -254,6 +251,64 @@ namespace PocketHammer
 				bTriggerUpdate = false;
 			}
 		}
+
+        void OnSceneGUI()
+        {
+            if (Event.current.type == EventType.Layout)
+                HandleUtility.AddDefaultControl(GUIUtility.GetControlID(GetHashCode(), FocusType.Passive));
+
+            Event e = Event.current;
+            if (e.type == EventType.MouseDown && e.button == 0)
+            {
+                TerrainCombiner combiner = (TerrainCombiner)target;
+                Terrain terrain = combiner.GetComponent<Terrain>();
+                TerrainCollider collider = combiner.GetComponent<TerrainCollider>();
+
+                Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
+                RaycastHit hit;
+                if(collider.Raycast(ray, out hit, 100000))
+                {
+                    Debug.DrawRay(hit.point, Vector3.up*10, Color.green, 5);
+
+                    TerrainCombinerInstance instance = FindClosestInstance(hit.point);
+                    if (instance != null)
+                    {
+                        Selection.activeGameObject = instance.gameObject;
+                        e.Use();
+                    }
+                        
+                }
+            }
+                
+        }
+
+
+        private TerrainCombinerInstance FindClosestInstance(Vector3 worldPos)
+        {
+            TerrainCombiner combiner = (TerrainCombiner)target;
+
+            TerrainCombinerInstance closestInstance = null;
+            float closestDist = float.MaxValue;
+            foreach(var instance in combiner.Instances)
+            {
+                Vector3 localPos = instance.transform.InverseTransformPoint(worldPos);
+                Vector3 size = instance.GetWorldSize();
+                Rect rect = new Rect(-size.x * 0.5f, -size.z * 0.5f, size.x, size.x);
+
+                if(rect.Contains(new Vector2(localPos.x, localPos.z)))
+                {
+                    float dist = Vector2.Distance(new Vector2(worldPos.x, worldPos.z), new Vector2(instance.transform.position.x, instance.transform.position.z));
+                    if(dist < closestDist)
+                    {
+                        closestDist = dist;
+                        closestInstance = instance;
+                    }
+                }
+            }
+
+            return closestInstance;
+        }
+
 
         private void FloatField(string name, SerializedProperty property ) {
 			GUILayout.BeginHorizontal();
