@@ -260,7 +260,7 @@ namespace PocketHammer
             foreach(var instance in terrainCombiner.Instances)
             {
                 Vector3 localPos = instance.transform.InverseTransformPoint(worldPos);
-                Vector3 size = instance.GetWorldSize();
+                Vector3 size = instance.WorldSize;
                 Rect rect = new Rect(-size.x * 0.5f, -size.z * 0.5f, size.x, size.x);
 
                 if(rect.Contains(new Vector2(localPos.x, localPos.z)))

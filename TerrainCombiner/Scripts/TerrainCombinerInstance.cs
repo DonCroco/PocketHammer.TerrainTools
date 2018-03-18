@@ -11,16 +11,15 @@ namespace PocketHammer
         public Vector2 position = Vector2.zero;
         public float rotation = 0;
         public Vector2 size = Vector2.one;
-        public float heightSize = 1.0f;
 
-        public Vector3 GetWorldSize()
+        public Vector3 WorldSize
         {
-            return source == null ? Vector3.zero : Vector3.Scale(source.Terrain.terrainData.size, transform.localScale);
+            get { return source == null ? Vector3.zero : Vector3.Scale(source.Terrain.terrainData.size, transform.localScale); }
         }
 
-        public float GroundHeightWorld()
+        public float WorldGroundHeight
         {
-            return source == null ? 0 : source.GroundLevelFraction * source.WorldSize.y;
+            get { return source == null ? 0 : source.GroundLevelFraction * WorldSize.y; }
         }
     }
 }

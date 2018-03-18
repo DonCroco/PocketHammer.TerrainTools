@@ -61,8 +61,9 @@ namespace PocketHammer
 
             // Draw bounds
             Handles.color = Color.yellow;
-            Vector3 worldSize = instance.GetWorldSize();
-            Handles.matrix = Matrix4x4.TRS(instance.transform.position, instance.transform.rotation, worldSize);
+            var worldSize = instance.WorldSize;
+            var cubePos = instance.transform.position + (worldSize.y/2f - instance.WorldGroundHeight)*Vector3.up;
+            Handles.matrix = Matrix4x4.TRS(cubePos, instance.transform.rotation, worldSize);
             Handles.DrawWireCube(Vector3.zero, Vector3.one);
         }
 
@@ -98,7 +99,7 @@ namespace PocketHammer
             
             
             // Contraint position combiner terrain height
-            float y = combinerTerrain.transform.position.y + combinerTerrain.terrainData.size.y * combiner.groundLevelFraction - instance.GroundHeightWorld();
+            float y = combinerTerrain.terrainData.size.y * combiner.groundLevelFraction;
             Vector3 instancePos = instance.transform.localPosition;
             instancePos.y = y;
             instance.transform.localPosition = instancePos;

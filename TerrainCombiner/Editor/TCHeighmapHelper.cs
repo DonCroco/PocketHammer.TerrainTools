@@ -46,13 +46,13 @@ namespace PocketHammer
 	
 			{
 				for(int i=0;i<terrainCombiner.Instances.Length;i++) {
-					TerrainCombinerInstance sourceData = terrainCombiner.Instances[i];
+					TerrainCombinerInstance terrainInstance = terrainCombiner.Instances[i];
 
-					if(sourceData.source == null) {
+					if(terrainInstance.source == null) {
 						continue;
 					}
 
-					Terrain sourceTerrain = sourceData.source.GetComponent<Terrain>();
+					Terrain sourceTerrain = terrainInstance.source.GetComponent<Terrain>();
 					if(sourceTerrain == null) {
 						continue;
 					}
@@ -60,21 +60,21 @@ namespace PocketHammer
 //					TerrainData sourceTerrainData = sourceTerrain.terrainData;
 
 //					Texture2D sourceTexture = heightmapDataCache.sourceTextures[i];
-					Texture2D sourceTexture = sourceData.source.CachedHeightmapTexture;
+					Texture2D sourceTexture = terrainInstance.source.CachedHeightmapTexture;
 
 
-					Vector2 position = sourceData.position;
+					Vector2 position = terrainInstance.position;
 
 					//			Material material = new Material(Shader.Find("Unlit/Texture"));
 					Material material = new Material(Shader.Find("PockerHammer/TCHeightmapShader"));
-					material.SetFloat("_HeighOffset",-sourceData.source.GroundLevelFraction);
+					material.SetFloat("_HeighOffset",-terrainInstance.source.GroundLevelFraction);
 
-					float heightScale = TerrainCombiner.CalcChildTerrainHeightScale(targetTerrain.terrainData.size, sourceTerrain.terrainData.size, sourceData.heightSize);
+					float heightScale = terrainInstance.WorldSize.y/terrainCombiner.WorldSize.y;
 					material.SetFloat("_HeightScale",heightScale);
 
-					Vector2 scale = TerrainCombiner.CalcChildTerrainPlaneScale(targetTerrain.terrainData.size, sourceTerrain.terrainData.size, sourceData.size);
+					Vector2 scale = TerrainCombiner.CalcChildTerrainPlaneScale(targetTerrain.terrainData.size, sourceTerrain.terrainData.size, terrainInstance.size);
 
-					TCGraphicsHelper.DrawTexture(sourceTexture, material, position, sourceData.rotation, scale);
+					TCGraphicsHelper.DrawTexture(sourceTexture, material, position, terrainInstance.rotation, scale);
 				}
 			}
 

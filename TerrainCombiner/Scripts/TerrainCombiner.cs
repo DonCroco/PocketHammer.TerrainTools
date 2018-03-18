@@ -47,7 +47,6 @@ namespace PocketHammer
 			public float heightSize = 1.0f;
 		}
 
-
         public TerrainCombinerInstance[] Instances
         {
             get {
@@ -57,20 +56,22 @@ namespace PocketHammer
 
 		public float groundLevelFraction = 0.0f;
 
-
-
+		public Terrain Terrain
+		{
+			get { return GetComponent<Terrain>(); }
+		}
+		
+		public Vector3 WorldSize
+		{
+			get { return Terrain.terrainData.size; }
+		}
+		
 		public static Vector2 CalcChildTerrainPlaneScale(Vector3 parentWorldSize, Vector3 childWorldSize, Vector2 scale) {
 
 			Vector2 outScale;
 			outScale.x = (childWorldSize.z*scale.x)/parentWorldSize.z;
 			outScale.y = (childWorldSize.x*scale.y)/parentWorldSize.x;
 
-			return outScale;
-		}
-
-		public static float CalcChildTerrainHeightScale(Vector3 parentWorldSize, Vector3 childWorldSize,float scale) {
-
-			float outScale= childWorldSize.y*scale/parentWorldSize.y;
 			return outScale;
 		}
 
