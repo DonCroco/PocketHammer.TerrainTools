@@ -47,6 +47,11 @@ namespace PocketHammer
 
             DrawDefaultInspector();
 
+            if(GUILayout.Button("World space scale")) {
+					
+            }
+            
+            
             HandleTransformChange();
         }
 
