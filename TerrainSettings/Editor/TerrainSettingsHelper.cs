@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace PocketHammer
 {
-	public class TerrainResizerHelper {
+	public class TerrainSettingsHelper {
 
 
 		static public void AdjustTransform(Terrain terrain, Vector3 delta, bool updateTerrain, bool updateChildren) {

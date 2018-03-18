@@ -3,17 +3,16 @@ using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using UnityEngine.Experimental.UIElements;
 
 namespace PocketHammer
 {
 	[CustomEditor(typeof(TerrainCombiner))]
 	public class TerrainCombinerEditor : Editor {
 
-
 		TerrainCombiner terrainCombiner;
 
 		bool bTriggerUpdate = false;
-
 
 		int selectedInstanceIndex = -1;     // TODO (mogensh) move to TerrainCombiner as non serialized property ? Or serialized`?
 
@@ -34,46 +33,6 @@ namespace PocketHammer
 		}
 
 
-		public static string FindAssetFolder(string folderToStart, string desiredFolderName)
-		{
-			string[] folderEntries = Directory.GetDirectories(folderToStart);
-
-			for (int n = 0, len = folderEntries.Length; n < len; ++n)
-			{
-				string folderName = GetLastFolder(folderEntries[n]);
-				//Debug.Log("folderName: " + folderName);
-
-				if (folderName == desiredFolderName)
-				{
-					return folderEntries[n];
-				}
-				else
-				{
-					string recursed = FindAssetFolder(folderEntries[n], desiredFolderName);
-					string recursedFolderName = GetLastFolder(recursed);
-					if (recursedFolderName == desiredFolderName)
-					{
-						return recursed;
-					}
-				}
-			}
-			return "";
-		}
-
-		static string GetLastFolder(string inFolder)
-		{
-			inFolder = inFolder.Replace('\\', '/');
-
-			//Debug.Log("folder: " + inFolder);
-			//string folderName = Path.GetDirectoryName(folderEntries[n]);
-
-			int lastSlashIdx = inFolder.LastIndexOf('/');
-			if (lastSlashIdx == -1)
-			{
-				return "";
-			}
-			return inFolder.Substring(lastSlashIdx+1, inFolder.Length-lastSlashIdx-1);
-		}
 
 		void OnDisable()
 		{
@@ -254,42 +213,51 @@ namespace PocketHammer
 
         void OnSceneGUI()
         {
-            if (Event.current.type == EventType.Layout)
-                HandleUtility.AddDefaultControl(GUIUtility.GetControlID(GetHashCode(), FocusType.Passive));
+            // TODO this blocks for selecting other objesdt
+            //if (Event.current.type == EventType.Layout)
+            //    HandleUtility.AddDefaultControl(GUIUtility.GetControlID(GetHashCode(), FocusType.Passive));
 
-            Event e = Event.current;
-            if (e.type == EventType.MouseDown && e.button == 0)
+            var e = Event.current;
+	        var controlID = GUIUtility.GetControlID (FocusType.Passive);
+	        var eventType = e.GetTypeForControl(controlID);
+       
+            if (eventType == EventType.MouseDown)
             {
-                TerrainCombiner combiner = (TerrainCombiner)target;
-                Terrain terrain = combiner.GetComponent<Terrain>();
-                TerrainCollider collider = combiner.GetComponent<TerrainCollider>();
+                var combiner = (TerrainCombiner)target;
+                var collider = combiner.GetComponent<TerrainCollider>();
 
-                Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
+                var ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
                 RaycastHit hit;
                 if(collider.Raycast(ray, out hit, 100000))
                 {
-                    Debug.DrawRay(hit.point, Vector3.up*10, Color.green, 5);
+//                    Debug.DrawRay(hit.point, Vector3.up*10, Color.green, 5);
 
-                    TerrainCombinerInstance instance = FindClosestInstance(hit.point);
+                    var instance = FindClosestInstance(hit.point);
                     if (instance != null)
                     {
-                        Selection.activeGameObject = instance.gameObject;
+	                    GUIUtility.hotControl = controlID;
+                    
+//	                    pendingSelectedInstance = instance;
+	                    Selection.activeGameObject = instance.gameObject;
                         e.Use();
                     }
-                        
                 }
             }
                 
+	        if (eventType == EventType.MouseUp)
+	        {
+		        Debug.Log("event:" + eventType);
+		        GUIUtility.hotControl = 0;
+		        e.Use();
+	        }
         }
 
 
         private TerrainCombinerInstance FindClosestInstance(Vector3 worldPos)
         {
-            TerrainCombiner combiner = (TerrainCombiner)target;
-
             TerrainCombinerInstance closestInstance = null;
             float closestDist = float.MaxValue;
-            foreach(var instance in combiner.Instances)
+            foreach(var instance in terrainCombiner.Instances)
             {
                 Vector3 localPos = instance.transform.InverseTransformPoint(worldPos);
                 Vector3 size = instance.GetWorldSize();
@@ -328,8 +296,8 @@ namespace PocketHammer
 
 
 
-		private void Update() {
-
+		private static void Update() {
+			
 //			// Apply first so it is a frame after combine start
 //			if(bApply) {
 //
@@ -354,4 +322,46 @@ namespace PocketHammer
 		} 
 
 	}
+	
+	
+//		public static string FindAssetFolder(string folderToStart, string desiredFolderName)
+//		{
+//			string[] folderEntries = Directory.GetDirectories(folderToStart);
+//
+//			for (int n = 0, len = folderEntries.Length; n < len; ++n)
+//			{
+//				string folderName = GetLastFolder(folderEntries[n]);
+//				//Debug.Log("folderName: " + folderName);
+//
+//				if (folderName == desiredFolderName)
+//				{
+//					return folderEntries[n];
+//				}
+//				else
+//				{
+//					string recursed = FindAssetFolder(folderEntries[n], desiredFolderName);
+//					string recursedFolderName = GetLastFolder(recursed);
+//					if (recursedFolderName == desiredFolderName)
+//					{
+//						return recursed;
+//					}
+//				}
+//			}
+//			return "";
+//		}
+
+//		static string GetLastFolder(string inFolder)
+//		{
+//			inFolder = inFolder.Replace('\\', '/');
+//
+//			//Debug.Log("folder: " + inFolder);
+//			//string folderName = Path.GetDirectoryName(folderEntries[n]);
+//
+//			int lastSlashIdx = inFolder.LastIndexOf('/');
+//			if (lastSlashIdx == -1)
+//			{
+//				return "";
+//			}
+//			return inFolder.Substring(lastSlashIdx+1, inFolder.Length-lastSlashIdx-1);
+//		}
 }

@@ -48,7 +48,6 @@ namespace PocketHammer
 		}
 
 
-		[SerializeField]
         public TerrainCombinerInstance[] Instances
         {
             get {

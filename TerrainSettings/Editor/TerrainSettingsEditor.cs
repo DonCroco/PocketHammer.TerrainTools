@@ -7,8 +7,8 @@ using System.Collections;
 
 namespace PocketHammer
 {
-	[CustomEditor(typeof(TerrainResizer))]
-	public class TerrainResizerEditor : Editor
+	[CustomEditor(typeof(TerrainSettings))]
+	public class TerrainSettingsEditor : Editor
 	{
 		private const string PrefName_AdjustPlane = "TerrainResizeEditor_AdjustPlane";
 		private const string PrefName_AdjustHeight = "TerrainResizeEditor_AdjustHeight";
@@ -24,7 +24,7 @@ namespace PocketHammer
 			int smallButtonSize = 50;
 			int largeButtonSize = smallButtonSize*2 + 4;
 
-			TerrainResizer terrainResizer = (TerrainResizer)target;
+			TerrainSettings terrainResizer = (TerrainSettings)target;
 
 			Terrain terrain = terrainResizer.GetComponent<Terrain>();
 			if(terrain == null) {
@@ -58,12 +58,12 @@ namespace PocketHammer
 						EditorSceneManager.MarkAllScenesDirty();
 
 						float defaultHeight = 0;
-						TerrainResizerHelper.GetEdgeHeight(terrain, out defaultHeight);
+						TerrainSettingsHelper.GetEdgeHeight(terrain, out defaultHeight);
 
 						// TODO: find border material
-						TerrainResizerHelper.DoubleTerrainPlaneSize(terrain, defaultHeight, 0);
+						TerrainSettingsHelper.DoubleTerrainPlaneSize(terrain, defaultHeight, 0);
 
-						TerrainResizerHelper.AdjustTransform(terrain, -oldPlaneSize*0.5f, EditorPrefs.GetBool(PrefName_KeepFeatureWorldPos), EditorPrefs.GetBool(PrefName_UpdateChildPosition));
+						TerrainSettingsHelper.AdjustTransform(terrain, -oldPlaneSize*0.5f, EditorPrefs.GetBool(PrefName_KeepFeatureWorldPos), EditorPrefs.GetBool(PrefName_UpdateChildPosition));
 					}
 
 					if (GUILayout.Button(new GUIContent("Halve","Halves terrain size while maintaining proportions of terrain features at the center of the terrain. This is an destructive action."), GUILayout.Width(smallButtonSize)))
@@ -76,9 +76,9 @@ namespace PocketHammer
 
 							EditorSceneManager.MarkAllScenesDirty();
 
-							TerrainResizerHelper.HalveTerrainPlaneSize(terrain);
+							TerrainSettingsHelper.HalveTerrainPlaneSize(terrain);
 
-							TerrainResizerHelper.AdjustTransform(terrain, oldPlaneSize*0.25f, EditorPrefs.GetBool(PrefName_KeepFeatureWorldPos), EditorPrefs.GetBool(PrefName_UpdateChildPosition));
+							TerrainSettingsHelper.AdjustTransform(terrain, oldPlaneSize*0.25f, EditorPrefs.GetBool(PrefName_KeepFeatureWorldPos), EditorPrefs.GetBool(PrefName_UpdateChildPosition));
 
 						}
 
@@ -98,20 +98,20 @@ namespace PocketHammer
 							EditorSceneManager.MarkAllScenesDirty();
 
 							float edgeHeight;
-							TerrainResizerHelper.GetEdgeHeight(terrain, out edgeHeight);
+							TerrainSettingsHelper.GetEdgeHeight(terrain, out edgeHeight);
 
 							Rect bounds = new Rect();
-							TerrainResizerHelper.GetHeightDataBounds(terrainData, edgeHeight, ref bounds);
+							TerrainSettingsHelper.GetHeightDataBounds(terrainData, edgeHeight, ref bounds);
 
 							int heightOffsetX = (terrainData.heightmapResolution - 1)/2 - (int)Mathf.Floor(bounds.center.x);
 							int heightOffsetY = (terrainData.heightmapResolution - 1)/2 - (int)Mathf.Floor(bounds.center.y);
 
-							TerrainResizerHelper.MoveData(terrainData, edgeHeight, 0, heightOffsetX, heightOffsetY);
+							TerrainSettingsHelper.MoveData(terrainData, edgeHeight, 0, heightOffsetX, heightOffsetY);
 
 							Vector2 deltaCenterDataSpace = new Vector2(terrainData.heightmapResolution*0.5f,terrainData.heightmapResolution*0.5f) - bounds.center;
 							Vector3 deltaCenterWorldSpace = new Vector3(deltaCenterDataSpace.y*terrainData.heightmapScale.x, 0.0f, deltaCenterDataSpace.x*terrainData.heightmapScale.z);
 
-							TerrainResizerHelper.AdjustTransform(terrain, deltaCenterWorldSpace, EditorPrefs.GetBool(PrefName_KeepFeatureWorldPos), EditorPrefs.GetBool(PrefName_UpdateChildPosition));
+							TerrainSettingsHelper.AdjustTransform(terrain, deltaCenterWorldSpace, EditorPrefs.GetBool(PrefName_KeepFeatureWorldPos), EditorPrefs.GetBool(PrefName_UpdateChildPosition));
 						}
 					}
 					EditorGUILayout.EndHorizontal();
@@ -140,14 +140,14 @@ namespace PocketHammer
 						EditorSceneManager.MarkAllScenesDirty();
 
 						float delta = 10.0f;
-						TerrainResizerHelper.AdjustCeiling(terrainData, delta);
+						TerrainSettingsHelper.AdjustCeiling(terrainData, delta);
 					}
 					if (GUILayout.Button("Down", GUILayout.Width(smallButtonSize)))
 					{
 						EditorSceneManager.MarkAllScenesDirty();
 
 						float delta = -10.0f;
-						TerrainResizerHelper.AdjustCeiling(terrainData, delta);
+						TerrainSettingsHelper.AdjustCeiling(terrainData, delta);
 					}
 					EditorGUILayout.EndHorizontal();
 
@@ -163,9 +163,9 @@ namespace PocketHammer
 						float delta = 10.0f;
 
 							
-						if(TerrainResizerHelper.AdjustFloor(terrainData, delta)) {
+						if(TerrainSettingsHelper.AdjustFloor(terrainData, delta)) {
 
-							TerrainResizerHelper.AdjustTransform(terrain, new Vector3(0,delta,0), EditorPrefs.GetBool(PrefName_KeepFeatureWorldPos), EditorPrefs.GetBool(PrefName_UpdateChildPosition));
+							TerrainSettingsHelper.AdjustTransform(terrain, new Vector3(0,delta,0), EditorPrefs.GetBool(PrefName_KeepFeatureWorldPos), EditorPrefs.GetBool(PrefName_UpdateChildPosition));
 						}
 
 
@@ -176,9 +176,9 @@ namespace PocketHammer
 
 //						Vector3 oldSize = terrainData.size;
 						float delta = -10f;
-						if(TerrainResizerHelper.AdjustFloor(terrainData, delta)) {
+						if(TerrainSettingsHelper.AdjustFloor(terrainData, delta)) {
 
-							TerrainResizerHelper.AdjustTransform(terrain, new Vector3(0,delta,0), EditorPrefs.GetBool(PrefName_KeepFeatureWorldPos), EditorPrefs.GetBool(PrefName_UpdateChildPosition));
+							TerrainSettingsHelper.AdjustTransform(terrain, new Vector3(0,delta,0), EditorPrefs.GetBool(PrefName_KeepFeatureWorldPos), EditorPrefs.GetBool(PrefName_UpdateChildPosition));
 						}
 					}
 					EditorGUILayout.EndHorizontal();
@@ -210,7 +210,7 @@ namespace PocketHammer
 						EditorSceneManager.MarkAllScenesDirty();
 
 						Texture2D texture = null;
-						TerrainResizerHelper.HeightDataDouble(terrainData, ref texture);
+						TerrainSettingsHelper.HeightDataDouble(terrainData, ref texture);
 //						TerrainResizerHelper.DoubleHeightResolution(terrainData);	
 					}
 					if (GUILayout.Button("Halve", GUILayout.Width(smallButtonSize)))
@@ -220,7 +220,7 @@ namespace PocketHammer
 						// TODO: destructive warning
 
 						Texture2D texture = null;
-						TerrainResizerHelper.HeightDataHalve(terrainData, ref texture);	
+						TerrainSettingsHelper.HeightDataHalve(terrainData, ref texture);	
 					}
 					EditorGUILayout.EndHorizontal();
 
@@ -235,13 +235,13 @@ namespace PocketHammer
 					{
 						EditorSceneManager.MarkAllScenesDirty();
 
-						TerrainResizerHelper.ChangeAlphaMapResolution(terrainData,terrainData.alphamapResolution*2);
+						TerrainSettingsHelper.ChangeAlphaMapResolution(terrainData,terrainData.alphamapResolution*2);
 					}
 					if (GUILayout.Button("Halve", GUILayout.Width(smallButtonSize)))
 					{
 						EditorSceneManager.MarkAllScenesDirty();
 
-						TerrainResizerHelper.ChangeAlphaMapResolution(terrainData,terrainData.alphamapResolution/2);
+						TerrainSettingsHelper.ChangeAlphaMapResolution(terrainData,terrainData.alphamapResolution/2);
 					}
 					EditorGUILayout.EndHorizontal();
 
@@ -307,7 +307,7 @@ namespace PocketHammer
 
         void OnSceneGUI()
         {
-            TerrainResizer terrainResizer = (TerrainResizer)target;
+            TerrainSettings terrainResizer = (TerrainSettings)target;
             Terrain terrain = terrainResizer.GetComponent<Terrain>();
 
             // Draw bounds
@@ -319,7 +319,7 @@ namespace PocketHammer
 
 
         [DrawGizmo(GizmoType.InSelectionHierarchy)]
-		static void RenderGizmos(TerrainResizer resizer, GizmoType gizmoType)       // TODO remove this render gizmo stuff
+		static void RenderGizmos(TerrainSettings resizer, GizmoType gizmoType)       // TODO remove this render gizmo stuff
 		{
 			Terrain terrain = resizer.GetComponent<Terrain>();
 			TerrainData terrainData = terrain.terrainData;

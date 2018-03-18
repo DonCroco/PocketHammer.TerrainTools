@@ -19,6 +19,16 @@ namespace PocketHammer
 		public Texture2D CachedHeightmapTexture;
 		public List<Texture2D> CachedMaterialTextures = new List<Texture2D>();
 		public bool CacheDirty = true;
+
+		public Terrain Terrain
+		{
+			get { return GetComponent<Terrain>(); }
+		}
+
+		public Vector3 WorldSize
+		{
+			get { return Terrain.terrainData.size; }
+		}
 	}
 
 }

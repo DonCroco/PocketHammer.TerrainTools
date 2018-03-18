@@ -3,14 +3,15 @@
 using UnityEngine;
 using System.Collections;
 
-// TODO: RENAME .. more property adjust 
+// TODO: Combine with combinersource ??
 // TODO: sort out detail resolution (two values)");
 // TODO: resolution: specify blend mode (lin, bilin, trilin)
 // BUG: Center doest not move material outside center
 // TODO: auto adjust height
+
 namespace PocketHammer
 {
-	public class TerrainResizer : MonoBehaviour
+	public class TerrainSettings : MonoBehaviour
     {
 
 	}

@@ -69,11 +69,7 @@ namespace PocketHammer
 
         void HandleTransformChange()
         {
-            // Contraint position combiner terrain height
-            float y = combinerTerrain.transform.position.y + combinerTerrain.terrainData.size.y * combiner.groundLevelFraction;
-            Vector3 instancePos = instance.transform.localPosition;
-            instancePos.y = y;
-            instance.transform.localPosition = instancePos;
+            
 
             // Contraint rotation to y axis
             Quaternion rot = instance.transform.localRotation;
@@ -99,6 +95,13 @@ namespace PocketHammer
             instance.rotation = instance.transform.rotation.eulerAngles.y;
             instance.size.x = instance.transform.localScale.z;
             instance.size.y = instance.transform.localScale.x;
+            
+            
+            // Contraint position combiner terrain height
+            float y = combinerTerrain.transform.position.y + combinerTerrain.terrainData.size.y * combiner.groundLevelFraction - instance.GroundHeightWorld();
+            Vector3 instancePos = instance.transform.localPosition;
+            instancePos.y = y;
+            instance.transform.localPosition = instancePos;
         }
     }
 }
