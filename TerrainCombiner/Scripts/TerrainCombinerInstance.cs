@@ -14,12 +14,23 @@ namespace PocketHammer
 
         public Vector3 WorldSize
         {
-            get { return source == null ? Vector3.zero : Vector3.Scale(source.Terrain.terrainData.size, transform.localScale); }
+            get { return source == null ? Vector3.zero : Vector3.Scale(source.WorldSize, transform.localScale); }
         }
+        
+        public Vector3 SourceWorldSize
+        {
+            get { return source == null ? Vector3.zero : source.WorldSize; }
+        }
+        
 
         public float WorldGroundHeight
         {
             get { return source == null ? 0 : source.GroundLevelFraction * WorldSize.y; }
+        }
+
+        public Terrain SouceTerrain
+        {
+            get { return source == null ? null : source.Terrain; }
         }
     }
 }

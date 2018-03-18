@@ -8,38 +8,30 @@ namespace PocketHammer
     [CustomEditor(typeof(TerrainCombinerInstance))]
     public class TerrainCombinerInstanceEditor : Editor
     {
-
         Vector3 lastPosition;
         float lastRotation;
         Vector3 lastScale;
 
-        TerrainCombiner combiner;
-        TerrainCombinerInstance instance;
-        Terrain combinerTerrain;
-        Terrain sourceTerrain;
+        public TerrainCombiner ParentCombiner
+        {
+            get { return CombinerInstance.transform.parent != null ? CombinerInstance.transform.parent.gameObject.GetComponent<TerrainCombiner>() : null; }
+        }
 
+        public TerrainCombinerInstance CombinerInstance
+        {
+            get { return (TerrainCombinerInstance) target; }
+        }
+        
         private void OnEnable()
         {
-            instance = (TerrainCombinerInstance)target;
-
-            combiner = instance.transform.parent != null ? instance.transform.parent.gameObject.GetComponent<TerrainCombiner>() : null;
-            if(combiner != null)
-                combinerTerrain = combiner.GetComponent<Terrain>();
-
-            TerrainCombinerSource source = instance.source;
-            if (source != null)
-                sourceTerrain = source.GetComponent<Terrain>();
-
-            lastPosition = instance.transform.position;
-            lastRotation = instance.transform.rotation.eulerAngles.y;
-            lastScale = instance.transform.localScale;
+            lastPosition = CombinerInstance.transform.position;
+            lastRotation = CombinerInstance.transform.rotation.eulerAngles.y;
+            lastScale = CombinerInstance.transform.localScale;
         }
 
         public override void OnInspectorGUI()
         {
-            TerrainCombinerInstance instance = (TerrainCombinerInstance)target;
-
-            if (combiner == null)
+            if (ParentCombiner == null)
             {
                 GUILayout.Label("Gameobject needs to be located as child of TerrainCombiner");
                 return;
@@ -47,28 +39,34 @@ namespace PocketHammer
 
             DrawDefaultInspector();
 
-            if(GUILayout.Button("World space scale")) {
-					
+            if(GUILayout.Button("Scale to combiner"))
+            {
+                Vector3 scale = new Vector3
+                {
+                    x = ParentCombiner.WorldSize.x / CombinerInstance.SourceWorldSize.x,
+                    y = CombinerInstance.transform.localScale.y,
+                    z = ParentCombiner.WorldSize.z / CombinerInstance.SourceWorldSize.z
+                };
+                CombinerInstance.transform.localScale = scale;
+                CombinerInstance.transform.localPosition = ParentCombiner.WorldSize * 0.5f;
+                CombinerInstance.transform.localRotation = Quaternion.identity;
             }
-            
             
             HandleTransformChange();
         }
 
         void OnSceneGUI()
         {
-            if (sourceTerrain == null)
+            if (CombinerInstance.SouceTerrain == null)
                 return;
-
-            TerrainCombinerInstance instance = (TerrainCombinerInstance)target;
 
             HandleTransformChange();
 
             // Draw bounds
             Handles.color = Color.yellow;
-            var worldSize = instance.WorldSize;
-            var cubePos = instance.transform.position + (worldSize.y/2f - instance.WorldGroundHeight)*Vector3.up;
-            Handles.matrix = Matrix4x4.TRS(cubePos, instance.transform.rotation, worldSize);
+            var worldSize = CombinerInstance.WorldSize;
+            var cubePos = CombinerInstance.transform.position + (worldSize.y/2f - CombinerInstance.WorldGroundHeight)*Vector3.up;
+            Handles.matrix = Matrix4x4.TRS(cubePos, CombinerInstance.transform.rotation, worldSize);
             Handles.DrawWireCube(Vector3.zero, Vector3.one);
         }
 
@@ -78,36 +76,36 @@ namespace PocketHammer
             
 
             // Contraint rotation to y axis
-            Quaternion rot = instance.transform.localRotation;
+            Quaternion rot = CombinerInstance.transform.localRotation;
             rot = Quaternion.Euler(0, rot.eulerAngles.y, 0);
-            instance.transform.localRotation = rot;
+            CombinerInstance.transform.localRotation = rot;
 
             bool triggerRebuild = false;
-            triggerRebuild |= instance.transform.position != lastPosition;
-            triggerRebuild |= instance.transform.rotation.eulerAngles.y != lastRotation;
-            triggerRebuild |= instance.transform.localScale != lastScale;
+            triggerRebuild |= CombinerInstance.transform.position != lastPosition;
+            triggerRebuild |= CombinerInstance.transform.rotation.eulerAngles.y != lastRotation;
+            triggerRebuild |= CombinerInstance.transform.localScale != lastScale;
             if (triggerRebuild)
             {
-                combiner.CacheDirty = true;
-                TCWorker.RequestUpdate(combiner);
+                ParentCombiner.CacheDirty = true;
+                TCWorker.RequestUpdate(ParentCombiner);
             }
 
-            lastPosition = instance.transform.position;
-            lastRotation = instance.transform.rotation.eulerAngles.y;
-            lastScale = instance.transform.localScale;
+            lastPosition = CombinerInstance.transform.position;
+            lastRotation = CombinerInstance.transform.rotation.eulerAngles.y;
+            lastScale = CombinerInstance.transform.localScale;
 
-            instance.position.x = instance.transform.localPosition.z / combinerTerrain.terrainData.size.z;
-            instance.position.y = instance.transform.localPosition.x  / combinerTerrain.terrainData.size.x;
-            instance.rotation = instance.transform.rotation.eulerAngles.y;
-            instance.size.x = instance.transform.localScale.z;
-            instance.size.y = instance.transform.localScale.x;
+            CombinerInstance.position.x = CombinerInstance.transform.localPosition.z / ParentCombiner.WorldSize.z;
+            CombinerInstance.position.y = CombinerInstance.transform.localPosition.x  / ParentCombiner.WorldSize.x;
+            CombinerInstance.rotation = CombinerInstance.transform.rotation.eulerAngles.y;
+            CombinerInstance.size.x = CombinerInstance.transform.localScale.z;
+            CombinerInstance.size.y = CombinerInstance.transform.localScale.x;
             
             
             // Contraint position combiner terrain height
-            float y = combinerTerrain.terrainData.size.y * combiner.groundLevelFraction;
-            Vector3 instancePos = instance.transform.localPosition;
+            float y = ParentCombiner.WorldSize.y * ParentCombiner.groundLevelFraction;
+            Vector3 instancePos = CombinerInstance.transform.localPosition;
             instancePos.y = y;
-            instance.transform.localPosition = instancePos;
+            CombinerInstance.transform.localPosition = instancePos;
         }
     }
 }
